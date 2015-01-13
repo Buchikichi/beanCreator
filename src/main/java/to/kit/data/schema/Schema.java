@@ -15,6 +15,8 @@ public final class Schema implements Iterable<EntityInfo> {
 	private String nameSpace;
 	/** Physical directory path. */
 	private String path;
+	/** Interface. */
+	private String interfaces;
 
 	@Override
 	public Iterator<EntityInfo> iterator() {
@@ -52,5 +54,19 @@ public final class Schema implements Iterable<EntityInfo> {
 	 */
 	public void setPath(String val) {
 		this.path = val;
+	}
+
+	/**
+	 * @return the interfaces
+	 */
+	public String getInterfaces() {
+		return this.interfaces;
+	}
+
+	/**
+	 * @param interfaces the interfaces to set
+	 */
+	public void setInterfaces(String interfaces) {
+		this.interfaces = interfaces;
 	}
 }

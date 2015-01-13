@@ -106,11 +106,11 @@ public final class SchemaLoader {
 
 		for (String key : keyList) {
 			Schema schema = new Schema();
-			String path = this.props.get(key + ".dir");
 			String namespace = this.props.get(key + ".namespace");
 
-			schema.setPath(path);
+			schema.setPath(this.props.get(key + ".dir"));
 			schema.setNameSpace(namespace);
+			schema.setInterfaces(this.props.get(key + ".implements"));
 			try (Connection conn = this.db.getConnection(key)) {
 				for (EntityInfo entity : getTableList(conn, key)) {
 					schema.addEntity(entity);

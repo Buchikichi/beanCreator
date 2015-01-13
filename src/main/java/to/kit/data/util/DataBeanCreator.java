@@ -130,10 +130,13 @@ public final class DataBeanCreator {
 		return buff.toString();
 	}
 
-	private String make(String nameSpace, EntityInfo entity) {
+	private String make(EntityInfo entity) {
 		StringBuilder buff = new StringBuilder();
 		String name = entity.getName();
 		String className = NameUtils.toPascal(name);
+		Schema schema = entity.getSchema();
+		String nameSpace = schema.getNameSpace();
+		String interfaces = schema.getInterfaces();
 
 		buff.append("package ");
 		buff.append(nameSpace);
@@ -159,7 +162,11 @@ public final class DataBeanCreator {
 		buff.append(name);
 		buff.append("\")");
 		buff.append(LF);
-		buff.append(String.format("public final class %s {", className));
+		buff.append(String.format("public final class %s", className));
+		if (StringUtils.isNotEmpty(interfaces)) {
+			buff.append(String.format(" implements %s", interfaces));
+		}
+		buff.append(" {");
 		buff.append(LF);
 		buff.append(makeFields(entity));
 		buff.append(LF);
@@ -195,12 +202,11 @@ public final class DataBeanCreator {
 	}
 
 	public void create(Schema schema) throws IOException {
-		String nameSpace = schema.getNameSpace();
 		File dir = new File(makePackagePath(schema));
 
 		dir.mkdirs();
 		for (EntityInfo entity : schema) {
-			String content = make(nameSpace, entity);
+			String content = make(entity);
 			String fileName = makeFilename(entity);
 			File file = new File(fileName);
 
