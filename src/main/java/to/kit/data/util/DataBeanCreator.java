@@ -3,6 +3,9 @@ package to.kit.data.util;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -130,6 +133,35 @@ public final class DataBeanCreator {
 		return buff.toString();
 	}
 
+	private String makeImport(String fields) {
+		StringBuilder buff = new StringBuilder();
+		List<String> list = new ArrayList<>();
+
+		if (fields.indexOf(" Date ") != -1) {
+			list.add("java.sql.Date");
+		}
+		if (fields.indexOf(" Timestamp ") != -1) {
+			list.add("java.sql.Timestamp");
+		}
+		if (!list.isEmpty()) {
+			Collections.sort(list);
+			for (String pkg : list) {
+				buff.append("import ");
+				buff.append(pkg);
+				buff.append(";");
+				buff.append(LF);
+			}
+			buff.append(LF);
+		}
+		buff.append("import javax.persistence.Column;");
+		buff.append(LF);
+		buff.append("import javax.persistence.Entity;");
+		buff.append(LF);
+		buff.append("import javax.persistence.Id;");
+		buff.append(LF);
+		return buff.toString();
+	}
+
 	private String make(EntityInfo entity) {
 		StringBuilder buff = new StringBuilder();
 		String name = entity.getName();
@@ -137,18 +169,15 @@ public final class DataBeanCreator {
 		Schema schema = entity.getSchema();
 		String nameSpace = schema.getNameSpace();
 		String interfaces = schema.getInterfaces();
+		String fields = makeFields(entity);
+//Set<String> typeSet = new HashSet<>();
 
 		buff.append("package ");
 		buff.append(nameSpace);
 		buff.append(";");
 		buff.append(LF);
 		buff.append(LF);
-		buff.append("import javax.persistence.Column;");
-		buff.append(LF);
-		buff.append("import javax.persistence.Entity;");
-		buff.append(LF);
-		buff.append("import javax.persistence.Id;");
-		buff.append(LF);
+		buff.append(makeImport(fields));
 		buff.append(LF);
 		buff.append("/**");
 		buff.append(LF);
@@ -168,14 +197,16 @@ public final class DataBeanCreator {
 		}
 		buff.append(" {");
 		buff.append(LF);
-		buff.append(makeFields(entity));
+		buff.append(fields);
 		buff.append(LF);
 		for (AttrInfo attr : entity) {
 			buff.append(makeGetter(attr));
 			buff.append(makeSetter(attr));
+//typeSet.add(attr.getType());
 		}
 		buff.append("}");
 		buff.append(LF);
+//for (String type : typeSet) System.out.println(type);
 		return buff.toString();
 	}
 

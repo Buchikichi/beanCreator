@@ -31,18 +31,32 @@ public final class SchemaLoader {
 	/** database connection. */
 	private DBConnection db = DBConnection.getInstance();
 
+	private Set<String> getExcludeSet(String key) {
+		Set<String> set = new HashSet<>();
+		String[] excludes = this.props.get(key + ".table.excludes").split("[\\s,]");
+
+		for (String table : excludes) {
+			set.add(table);
+		}
+		return set;
+	}
+
 	private List<EntityInfo> getTableList(Connection conn, String key)
 			throws SQLException {
 		List<EntityInfo> result = new ArrayList<>();
 		String query = this.props.get(key + ".table");
+		Set<String> excludes = getExcludeSet(key);
 
 		try (Statement stmt = conn.createStatement()) {
 			try (ResultSet rs = stmt.executeQuery(query)) {
 				while (rs.next()) {
-					EntityInfo entity = new EntityInfo();
 					String tableName = rs.getString("TABLE_NAME");
-					String comment = rs.getString("TABLE_COMMENT");
 
+					if (excludes.contains(tableName)) {
+						continue;
+					}
+					EntityInfo entity = new EntityInfo();
+					String comment = rs.getString("TABLE_COMMENT");
 					entity.setName(tableName);
 					entity.setComment(StringUtils.defaultString(comment));
 					result.add(entity);

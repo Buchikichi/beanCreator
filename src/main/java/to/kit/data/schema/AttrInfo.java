@@ -20,9 +20,17 @@ public final class AttrInfo {
 
 	public String getJavaType() {
 		String result = "String";
+		String lower = this.type.toLowerCase();
 
-		if ("int".equals(this.type)) {
-			result = "int";
+		if ("number".equals(lower) || "numeric".equals(lower)
+				|| lower.startsWith("int")) {
+			result = "Number";
+		} else if (lower.startsWith("timestamp")) {
+			result = "Timestamp";
+		} else if ("date".equals(lower) || lower.startsWith("time")) {
+			result = "Date";
+		} else if ("bytea".equals(lower) || "blob".equals(lower)) {
+			result = "byte[]";
 		} else {
 			result = "String";
 		}
